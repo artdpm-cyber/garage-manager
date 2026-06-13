@@ -2,88 +2,115 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Garage Manager V2 - Final Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage Manager Pro</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 10px; }
+        :root { --dark: #2d3436; --blue: #0984e3; --green: #00b894; --red: #d63031; }
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 15px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .bar { background: #2d3436; color: white; padding: 12px; border-radius: 8px; margin: 15px 0; font-weight: bold; }
-        .alert-box { background: #fab1a0; color: #d63031; padding: 15px; border-radius: 8px; border: 2px solid #d63031; margin-bottom: 10px; font-weight: bold; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #2d3436; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .log-item { background: #fff; padding: 10px; border-left: 5px solid #00b894; margin-bottom: 8px; }
+        .section-title { background: var(--dark); color: white; padding: 10px; border-radius: 5px; margin: 20px 0 10px; font-weight: bold; border-left: 8px solid var(--blue); }
+        .card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--dark); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .alert { background: #ffeaa7; border-left: 5px solid var(--red); padding: 10px; margin-bottom: 10px; color: #636e72; font-weight: bold; }
+        .log-item { background: white; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🛠️ Garage Manager V2</h2>
-    
-    <div id="alerts"></div>
-    <div class="bar">📊 สรุปภาพรวม</div>
-    <div class="card" id="dashboard"></div>
+    <h2 style="text-align:center;">🛠️ Garage Manager V2</h2>
+    <div id="alert-zone"></div>
 
-    <div class="bar">⛽ บันทึกเติมเชื้อเพลิง</div>
+    <div class="section-title">📊 สรุปผล (Dashboard)</div>
+    <div class="card" id="dashboard">โหลดข้อมูล...</div>
+
+    <div class="section-title">⛽ บันทึกเติมเชื้อเพลิง</div>
     <div class="card">
-        <select id="car"><option>Vios</option><option>Kia Carnival</option><option>Vigo</option></select>
+        <select id="carFuel"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
         <input type="number" id="mileage" placeholder="เลขไมล์ปัจจุบัน (กม.)">
-        <input type="number" id="dist" placeholder="ระยะที่วิ่งได้ (กม.)">
+        <input type="number" id="dist" placeholder="ระยะทางที่วิ่งได้ (กม.)">
         <input type="number" id="liter" placeholder="จำนวนลิตร">
         <input type="number" id="cost" placeholder="จำนวนเงิน (บาท)">
-        <button onclick="saveFuel()">บันทึกเชื้อเพลิง</button>
+        <button onclick="addFuel()" style="background:var(--green);">บันทึกเชื้อเพลิง</button>
     </div>
 
-    <div class="bar">🔧 บันทึกค่าซ่อม & เอกสาร</div>
+    <div class="section-title">🔧 บันทึกซ่อมบำรุง</div>
     <div class="card">
-        <select id="rCar"><option>Vios</option><option>Kia Carnival</option><option>Vigo</option></select>
+        <select id="carRepair"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
         <select id="rType">
-            <option>เปลี่ยนน้ำมันเครื่อง</option><option>ภาษี/พรบ/ประกัน</option>
+            <option>เปลี่ยนถ่ายน้ำมันเครื่อง</option><option>ภาษี/พรบ/ประกัน</option>
             <option>เครื่องยนต์</option><option>เกียร์</option><option>แอร์</option><option>ช่วงล่าง</option>
         </select>
-        <input type="number" id="rCost" placeholder="จำนวนเงิน">
-        <button onclick="saveRepair()" style="background:#d63031;">บันทึกรายการ</button>
+        <input type="number" id="rCost" placeholder="ค่าใช้จ่าย (บาท)">
+        <button onclick="addRepair()" style="background:var(--red);">บันทึกค่าซ่อม</button>
     </div>
 
-    <div class="bar">📜 ประวัติ</div>
-    <div id="logList"></div>
+    <div class="section-title">📜 ประวัติ & จัดการข้อมูล</div>
+    <div id="history" class="card"></div>
+    <button onclick="exportData()" style="background:#636e72; margin-top:10px;">📤 Backup ข้อมูล</button>
 </div>
 
 <script>
-    let data = JSON.parse(localStorage.getItem('garageV2')) || [];
+    let db = JSON.parse(localStorage.getItem('garageData')) || { logs: [] };
 
-    function saveFuel() {
-        const m = parseInt(document.getElementById('mileage').value);
-        const entry = { type: 'FUEL', car: document.getElementById('car').value, mileage: m, dist: document.getElementById('dist').value, liter: document.getElementById('liter').value, cost: document.getElementById('cost').value, date: new Date().toLocaleDateString() };
-        data.unshift(entry);
-        localStorage.setItem('garageV2', JSON.stringify(data));
-        render();
+    function addFuel() {
+        const entry = {
+            type: 'FUEL',
+            car: document.getElementById('carFuel').value,
+            mileage: parseFloat(document.getElementById('mileage').value),
+            dist: parseFloat(document.getElementById('dist').value),
+            liter: parseFloat(document.getElementById('liter').value),
+            cost: parseFloat(document.getElementById('cost').value),
+            date: new Date().toLocaleDateString('th-TH')
+        };
+        db.logs.unshift(entry);
+        saveAndRender();
     }
 
-    function saveRepair() {
-        const entry = { type: 'REPAIR', car: document.getElementById('rCar').value, category: document.getElementById('rType').value, cost: document.getElementById('rCost').value, date: new Date().toLocaleDateString() };
-        data.unshift(entry);
-        localStorage.setItem('garageV2', JSON.stringify(data));
+    function addRepair() {
+        const entry = {
+            type: 'REPAIR',
+            car: document.getElementById('carRepair').value,
+            category: document.getElementById('rType').value,
+            cost: parseFloat(document.getElementById('rCost').value),
+            mileage: parseFloat(document.getElementById('mileage').value), // บันทึกไมล์ตอนซ่อมด้วยเพื่อเอาไปคำนวณ
+            date: new Date().toLocaleDateString('th-TH')
+        };
+        db.logs.unshift(entry);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('garageData', JSON.stringify(db));
         render();
     }
 
     function render() {
-        let alerts = document.getElementById('alerts');
-        alerts.innerHTML = '';
-        let lastOilChange = data.find(i => i.category === 'เปลี่ยนน้ำมันเครื่อง');
+        const dash = document.getElementById('dashboard');
+        const history = document.getElementById('history');
+        const alerts = document.getElementById('alert-zone');
         
-        // ตรวจสอบแจ้งเตือนน้ำมันเครื่อง (สมมติเปลี่ยนทุก 10,000 กม.)
-        let latestFuel = data.find(i => i.type === 'FUEL');
-        if (latestFuel && lastOilChange && (latestFuel.mileage - 10000 > 0)) {
-            alerts.innerHTML = `<div class="alert-box">⚠️ แจ้งเตือน: ถึงกำหนดถ่ายน้ำมันเครื่องของ ${latestFuel.car} แล้ว!</div>`;
-        }
+        // สรุปยอด
+        let total = db.logs.reduce((sum, item) => sum + item.cost, 0);
+        dash.innerHTML = `รวมจ่ายสะสม: <b>${total.toLocaleString()} บาท</b>`;
 
-        let list = document.getElementById('logList');
-        list.innerHTML = '';
-        data.forEach((item, i) => {
-            list.innerHTML += `<div class="log-item"><b>${item.car}</b> | ${item.type === 'FUEL' ? '⛽ เชื้อเพลิง' : '🔧 ' + item.category} <br> จ่าย: ${item.cost} บาท (${item.date})</div>`;
+        // แสดงประวัติ
+        history.innerHTML = '';
+        db.logs.forEach((item, i) => {
+            let detail = item.type === 'FUEL' ? `${item.car} | ${item.dist} กม. (${(item.dist/item.liter).toFixed(2)} กม./ลิตร)` : `${item.car} | ${item.category}`;
+            history.innerHTML += `<div class="log-item">${detail} <button onclick="db.logs.splice(${i},1); saveAndRender();" style="background:none; color:red; border:none; cursor:pointer;">ลบ</button></div>`;
         });
-        document.getElementById('dashboard').innerHTML = `รวมค่าใช้จ่ายทั้งหมด: <b>${data.reduce((s,i) => s + parseFloat(i.cost), 0).toLocaleString()} บาท</b>`;
+
+        // ตรวจสอบแจ้งเตือน (เช็ครายการเปลี่ยนน้ำมันเครื่อง)
+        alerts.innerHTML = '';
+        let oilChange = db.logs.find(i => i.category === 'เปลี่ยนน้ำมันเครื่อง');
+        if(oilChange) {
+            alerts.innerHTML = `<div class="alert">⚠️ ล่าสุด ${oilChange.car} เปลี่ยนน้ำมันเครื่องที่ไมล์: ${oilChange.mileage}</div>`;
+        }
     }
+
+    function exportData() { prompt("คัดลอกข้อมูลเพื่อ Backup:", JSON.stringify(db)); }
     render();
 </script>
 </body>
