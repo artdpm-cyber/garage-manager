@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garage Manager Pro</title>
+<style>
+body{font-family:Arial;max-width:1200px;margin:auto;padding:15px}
+input,select,button{padding:8px;margin:4px;width:100%;box-sizing:border-box}
+.card{border:1px solid #ddd;border-radius:8px;padding:12px;margin:10px 0}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+h2,h3{margin:6px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+</style>
+</head>
+<body>
+
+<h2>🚗 Garage Manager Pro</h2>
+
+<div class="card">
+<div class="grid">
+<div><select id="car"><option>Vios</option><option>Vigo</option><option>Kia Carnival</option></select></div>
+<div><input type="date" id="date"></div>
+<div><input type="number" id="odo" placeholder="เลขไมล์"></div>
+<div><select id="fuel"><option>เบนซิน</option><option>ดีเซล</option><option>LPG</option></select></div>
+<div><input type="number" id="liters" placeholder="ลิตร"></div>
+<div><input type="number" id="price" placeholder="บาท/ลิตร"></div>
+</div>
+<input id="note" placeholder="หมายเหตุ">
+<button onclick="addFuel()">บันทึกการเติมเชื้อเพลิง</button>
+</div>
+
+<div class="card">
+<h3>🔧 บันทึกค่าซ่อม</h3>
+<div class="grid">
+<input id="repairCar" placeholder="รถ">
+<input id="repairCost" type="number" placeholder="ค่าใช้จ่าย">
+<input id="repairNote" placeholder="รายการซ่อม">
+</div>
+<button onclick="addRepair()">บันทึกค่าซ่อม</button>
+</div>
+
+<div class="card">
+<h3>📊 สรุป</h3>
+<div id="summary"></div>
+</div>
+
+<div class="card">
+<h3>⛽ รายการเติมเชื้อเพลิง</h3>
+<table>
+<thead>
+<tr><th>วันที่</th><th>รถ</th><th>ไมล์</th><th>ระยะทาง</th><th>กม./ลิตร</th><th>ค่าใช้จ่าย</th><th>ลบ</th></tr>
+</thead>
+<tbody id="fuelTable"></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>🔧 รายการซ่อม</h3>
+<table>
+<thead><tr><th>รถ</th><th>รายการ</th><th>ค่าใช้จ่าย</th><th>ลบ</th></tr></thead>
+<tbody id="repairTable"></tbody>
+</table>
+</div>
+
+<script>
+let fuelData=JSON.parse(localStorage.getItem("fuelData")||"[]");
+let repairs=JSON.parse(localStorage.getItem("repairData")||"[]");
+
+function save(){
+ localStorage.setItem("fuelData",JSON.stringify(fuelData));
+ localStorage.setItem("repairData",JSON.stringify(repairs));
+}
+
+function addFuel(){
+ let r={
+  car:car.value,date:date.value,odo:+odo.value,
+  fuel:fuel.value,liters:+liters.value,price:+price.value,
+  note:note.value
+ };
+ r.total=r.liters*r.price;
+
+ let prev=[...fuelData].reverse().find(x=>x.car===r.car);
+ if(prev){
+   r.distance=r.odo-prev.odo;
+   r.kml=(r.distance/r.liters).toFixed(2);
+ }else{
+   r.distance=0;
+   r.kml=0;
+ }
+ fuelData.push(r);
+ save();
+ render();
+}
+
+function addRepair(){
+ repairs.push({
+  car:repairCar.value,
+  cost:+repairCost.value,
+  note:repairNote.value
+ });
+ save();
+ render();
+}
+
+function delFuel(i){fuelData.splice(i,1);save();render();}
+function delRepair(i){repairs.splice(i,1);save();render();}
+
+function render(){
+
+ fuelTable.innerHTML=fuelData.map((r,i)=>`
+ <tr>
+ <td>${r.date}</td>
+ <td>${r.car}</td>
+ <td>${r.odo}</td>
+ <td>${r.distance||0}</td>
+ <td>${r.kml||0}</td>
+ <td>${r.total.toFixed(2)}</td>
+ <td><button onclick="delFuel(${i})">ลบ</button></td>
+ </tr>`).join('');
+
+ repairTable.innerHTML=repairs.map((r,i)=>`
+ <tr>
+ <td>${r.car}</td>
+ <td>${r.note}</td>
+ <td>${r.cost.toFixed(2)}</td>
+ <td><button onclick="delRepair(${i})">ลบ</button></td>
+ </tr>`).join('');
+
+ let cars=["Vios","Vigo","Kia Carnival"];
+ let txt="";
+
+ cars.forEach(c=>{
+   let fuel=fuelData.filter(x=>x.car===c)
+      .reduce((a,b)=>a+b.total,0);
+
+   let repair=repairs.filter(x=>x.car===c)
+      .reduce((a,b)=>a+b.cost,0);
+
+   txt+=`<p><b>${c}</b><br>
+   ค่าน้ำมัน/แก๊ส: ${fuel.toFixed(2)} บาท<br>
+   ค่าซ่อม: ${repair.toFixed(2)} บาท<br>
+   รวม: ${(fuel+repair).toFixed(2)} บาท
+   </p>`;
+ });
+
+ summary.innerHTML=txt;
+}
+render();
+</script>
+
+</body>
+</html>
