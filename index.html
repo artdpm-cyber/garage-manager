@@ -3,115 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garage Manager Pro</title>
+    <title>Garage Manager V2 - Professional</title>
     <style>
-        :root { --dark: #2d3436; --blue: #0984e3; --green: #00b894; --red: #d63031; }
-        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 15px; }
+        :root {
+            --dark-grey: #2c3e50;
+            --text-dark: #1e272e;
+            --bg-light: #ffffff;
+            --bar-fuel: #00b894;
+            --bar-repair: #d63031;
+            --bar-dash: #0984e3;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text-dark); margin: 0; padding: 15px; font-weight: 500; }
         .container { max-width: 500px; margin: 0 auto; }
-        .section-title { background: var(--dark); color: white; padding: 10px; border-radius: 5px; margin: 20px 0 10px; font-weight: bold; border-left: 8px solid var(--blue); }
-        .card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--dark); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .alert { background: #ffeaa7; border-left: 5px solid var(--red); padding: 10px; margin-bottom: 10px; color: #636e72; font-weight: bold; }
-        .log-item { background: white; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* บาร์หัวข้อตัวหนังสือหนา ไฮไลท์สีแยกชัดเจน */
+        .bar { background: var(--dark-grey); color: #ffffff; padding: 14px; border-radius: 6px; margin: 20px 0 10px 0; font-weight: bold; font-size: 1.15em; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .bar-dash { border-left: 10px solid var(--bar-dash); }
+        .bar-fuel { border-left: 10px solid var(--bar-fuel); }
+        .bar-repair { border-left: 10px solid var(--bar-repair); }
+        .bar-history { border-left: 10px solid #747d8c; }
+
+        .card { background: #f8f9fa; padding: 18px; border-radius: 8px; border: 2px solid #dfe6e9; margin-bottom: 15px; }
+        .alert-box { background: #ffeaa7; border: 2px solid #e1b12c; border-left: 10px solid var(--bar-repair); padding: 12px; border-radius: 6px; margin-bottom: 12px; font-weight: bold; color: #c23616; }
+        
+        label { display: block; font-weight: bold; margin: 10px 0 4px 0; font-size: 0.95em; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 5px; border: 2px solid #b2bec3; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-weight: bold; color: var(--text-dark); background: #ffffff; }
+        input:focus, select:focus { border-color: var(--dark-grey); outline: none; }
+        
+        button { width: 100%; padding: 14px; background: var(--dark-grey); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-fuel { background: var(--bar-fuel); }
+        .btn-repair { background: var(--bar-repair); }
+        
+        .log-item { background: #ffffff; border: 2px solid #dee2e6; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-size: 0.95em; line-height: 1.5; }
+        .log-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px; }
+        .txt-bold { font-weight: bold; }
+        .flex-btn { display: flex; gap: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align:center;">🛠️ Garage Manager V2</h2>
-    <div id="alert-zone"></div>
-
-    <div class="section-title">📊 สรุปผล (Dashboard)</div>
-    <div class="card" id="dashboard">โหลดข้อมูล...</div>
-
-    <div class="section-title">⛽ บันทึกเติมเชื้อเพลิง</div>
-    <div class="card">
-        <select id="carFuel"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
-        <input type="number" id="mileage" placeholder="เลขไมล์ปัจจุบัน (กม.)">
-        <input type="number" id="dist" placeholder="ระยะทางที่วิ่งได้ (กม.)">
-        <input type="number" id="liter" placeholder="จำนวนลิตร">
-        <input type="number" id="cost" placeholder="จำนวนเงิน (บาท)">
-        <button onclick="addFuel()" style="background:var(--green);">บันทึกเชื้อเพลิง</button>
-    </div>
-
-    <div class="section-title">🔧 บันทึกซ่อมบำรุง</div>
-    <div class="card">
-        <select id="carRepair"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
-        <select id="rType">
-            <option>เปลี่ยนถ่ายน้ำมันเครื่อง</option><option>ภาษี/พรบ/ประกัน</option>
-            <option>เครื่องยนต์</option><option>เกียร์</option><option>แอร์</option><option>ช่วงล่าง</option>
-        </select>
-        <input type="number" id="rCost" placeholder="ค่าใช้จ่าย (บาท)">
-        <button onclick="addRepair()" style="background:var(--red);">บันทึกค่าซ่อม</button>
-    </div>
-
-    <div class="section-title">📜 ประวัติ & จัดการข้อมูล</div>
-    <div id="history" class="card"></div>
-    <button onclick="exportData()" style="background:#636e72; margin-top:10px;">📤 Backup ข้อมูล</button>
-</div>
-
-<script>
-    let db = JSON.parse(localStorage.getItem('garageData')) || { logs: [] };
-
-    function addFuel() {
-        const entry = {
-            type: 'FUEL',
-            car: document.getElementById('carFuel').value,
-            mileage: parseFloat(document.getElementById('mileage').value),
-            dist: parseFloat(document.getElementById('dist').value),
-            liter: parseFloat(document.getElementById('liter').value),
-            cost: parseFloat(document.getElementById('cost').value),
-            date: new Date().toLocaleDateString('th-TH')
-        };
-        db.logs.unshift(entry);
-        saveAndRender();
-    }
-
-    function addRepair() {
-        const entry = {
-            type: 'REPAIR',
-            car: document.getElementById('carRepair').value,
-            category: document.getElementById('rType').value,
-            cost: parseFloat(document.getElementById('rCost').value),
-            mileage: parseFloat(document.getElementById('mileage').value), // บันทึกไมล์ตอนซ่อมด้วยเพื่อเอาไปคำนวณ
-            date: new Date().toLocaleDateString('th-TH')
-        };
-        db.logs.unshift(entry);
-        saveAndRender();
-    }
-
-    function saveAndRender() {
-        localStorage.setItem('garageData', JSON.stringify(db));
-        render();
-    }
-
-    function render() {
-        const dash = document.getElementById('dashboard');
-        const history = document.getElementById('history');
-        const alerts = document.getElementById('alert-zone');
-        
-        // สรุปยอด
-        let total = db.logs.reduce((sum, item) => sum + item.cost, 0);
-        dash.innerHTML = `รวมจ่ายสะสม: <b>${total.toLocaleString()} บาท</b>`;
-
-        // แสดงประวัติ
-        history.innerHTML = '';
-        db.logs.forEach((item, i) => {
-            let detail = item.type === 'FUEL' ? `${item.car} | ${item.dist} กม. (${(item.dist/item.liter).toFixed(2)} กม./ลิตร)` : `${item.car} | ${item.category}`;
-            history.innerHTML += `<div class="log-item">${detail} <button onclick="db.logs.splice(${i},1); saveAndRender();" style="background:none; color:red; border:none; cursor:pointer;">ลบ</button></div>`;
-        });
-
-        // ตรวจสอบแจ้งเตือน (เช็ครายการเปลี่ยนน้ำมันเครื่อง)
-        alerts.innerHTML = '';
-        let oilChange = db.logs.find(i => i.category === 'เปลี่ยนน้ำมันเครื่อง');
-        if(oilChange) {
-            alerts.innerHTML = `<div class="alert">⚠️ ล่าสุด ${oilChange.car} เปลี่ยนน้ำมันเครื่องที่ไมล์: ${oilChange.mileage}</div>`;
-        }
-    }
-
-    function exportData() { prompt("คัดลอกข้อมูลเพื่อ Backup:", JSON.stringify(db)); }
-    render();
-</script>
-</body>
-</html>
+    <h1 style="text-align:center; font-weight: 900; margin-bottom: 5px;">🛠️ Garage Manager V2</h1>
+    <p style="text-align:center; margin: 0 0 20px 0; color:
