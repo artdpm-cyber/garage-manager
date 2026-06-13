@@ -2,86 +2,88 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garage Manager V2</title>
+    <title>Garage Manager V2 - Final Edition</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 10px; color: #1e272e; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 10px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .bar { background: #2f3542; color: #fff; padding: 12px; border-radius: 8px; margin: 15px 0 8px 0; font-weight: bold; border-left: 8px solid #ff6348; }
-        .card { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #dfe6e9; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ced6e0; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #2f3542; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .log-item { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #70a1ff; font-size: 0.9em; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .total-box { font-size: 1.2em; font-weight: bold; color: #2d3436; }
+        .bar { background: #2d3436; color: white; padding: 12px; border-radius: 8px; margin: 15px 0; font-weight: bold; }
+        .alert-box { background: #fab1a0; color: #d63031; padding: 15px; border-radius: 8px; border: 2px solid #d63031; margin-bottom: 10px; font-weight: bold; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #2d3436; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .log-item { background: #fff; padding: 10px; border-left: 5px solid #00b894; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align:center;">🛠️ Garage Manager V2</h2>
+    <h2>🛠️ Garage Manager V2</h2>
     
-    <div class="bar">📊 Dashboard สรุปผล</div>
-    <div class="card total-box" id="dashboard">โหลดข้อมูล...</div>
+    <div id="alerts"></div>
+    <div class="bar">📊 สรุปภาพรวม</div>
+    <div class="card" id="dashboard"></div>
 
     <div class="bar">⛽ บันทึกเติมเชื้อเพลิง</div>
     <div class="card">
-        <select id="fuelCar"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
-        <input type="number" id="fMileage" placeholder="เลขไมล์ปัจจุบัน (กม.)">
-        <input type="number" id="fLiter" placeholder="จำนวนลิตร">
-        <input type="number" id="fCost" placeholder="จำนวนเงิน (บาท)">
+        <select id="car"><option>Vios</option><option>Kia Carnival</option><option>Vigo</option></select>
+        <input type="number" id="mileage" placeholder="เลขไมล์ปัจจุบัน (กม.)">
+        <input type="number" id="dist" placeholder="ระยะที่วิ่งได้ (กม.)">
+        <input type="number" id="liter" placeholder="จำนวนลิตร">
+        <input type="number" id="cost" placeholder="จำนวนเงิน (บาท)">
         <button onclick="saveFuel()">บันทึกเชื้อเพลิง</button>
     </div>
 
-    <div class="bar">🔧 บันทึกค่าซ่อมบำรุง</div>
+    <div class="bar">🔧 บันทึกค่าซ่อม & เอกสาร</div>
     <div class="card">
-        <select id="repairCar"><option value="Vios">🚗 Vios</option><option value="Carnival">🚐 Kia Carnival</option><option value="Vigo">🚙 Vigo</option></select>
-        <select id="repairType">
-            <option>เครื่องยนต์</option><option>เกียร์</option><option>แอร์</option>
-            <option>LPG</option><option>ช่วงล่าง</option><option>น้ำมันเครื่อง</option><option>ภาษี/พรบ/ประกัน</option>
+        <select id="rCar"><option>Vios</option><option>Kia Carnival</option><option>Vigo</option></select>
+        <select id="rType">
+            <option>เปลี่ยนน้ำมันเครื่อง</option><option>ภาษี/พรบ/ประกัน</option>
+            <option>เครื่องยนต์</option><option>เกียร์</option><option>แอร์</option><option>ช่วงล่าง</option>
         </select>
-        <input type="number" id="rCost" placeholder="ค่าใช้จ่าย (บาท)">
-        <button onclick="saveRepair()" style="background:#ff6348;">บันทึกรายการซ่อม</button>
+        <input type="number" id="rCost" placeholder="จำนวนเงิน">
+        <button onclick="saveRepair()" style="background:#d63031;">บันทึกรายการ</button>
     </div>
 
-    <div class="bar">📜 ประวัติรายการ</div>
+    <div class="bar">📜 ประวัติ</div>
     <div id="logList"></div>
-    <button onclick="backup()" style="background:#747d8c; margin-top:15px;">📥 Backup ข้อมูล</button>
 </div>
 
 <script>
-    let logs = JSON.parse(localStorage.getItem('garageData')) || [];
+    let data = JSON.parse(localStorage.getItem('garageV2')) || [];
 
     function saveFuel() {
-        const m = document.getElementById('fMileage').value, l = document.getElementById('fLiter').value, c = document.getElementById('fCost').value;
-        const entry = { type: 'FUEL', car: document.getElementById('fuelCar').value, mileage: m, liters: l, cost: c, date: new Date().toLocaleDateString() };
-        logs.unshift(entry);
-        update();
+        const m = parseInt(document.getElementById('mileage').value);
+        const entry = { type: 'FUEL', car: document.getElementById('car').value, mileage: m, dist: document.getElementById('dist').value, liter: document.getElementById('liter').value, cost: document.getElementById('cost').value, date: new Date().toLocaleDateString() };
+        data.unshift(entry);
+        localStorage.setItem('garageV2', JSON.stringify(data));
+        render();
     }
 
     function saveRepair() {
-        const entry = { type: 'REPAIR', car: document.getElementById('repairCar').value, cat: document.getElementById('repairType').value, cost: document.getElementById('rCost').value, date: new Date().toLocaleDateString() };
-        logs.unshift(entry);
-        update();
-    }
-
-    function update() {
-        localStorage.setItem('garageData', JSON.stringify(logs));
+        const entry = { type: 'REPAIR', car: document.getElementById('rCar').value, category: document.getElementById('rType').value, cost: document.getElementById('rCost').value, date: new Date().toLocaleDateString() };
+        data.unshift(entry);
+        localStorage.setItem('garageV2', JSON.stringify(data));
         render();
     }
 
     function render() {
-        let list = document.getElementById('logList'), total = 0;
-        list.innerHTML = '';
-        logs.forEach((log, i) => {
-            total += parseFloat(log.cost);
-            let detail = log.type === 'FUEL' ? `⛽ ${log.liters} ลิตร | ${(log.mileage/log.liters).toFixed(2)} กม./ลิตร` : `🛠️ ${log.cat}`;
-            list.innerHTML += `<div class="log-item"><b>${log.car}</b> | ${detail} <br> 💰 ${log.cost} บาท (${log.date})
-                <button onclick="logs.splice(${i},1); update();" style="width:auto; float:right; background:#d63031; padding:2px 8px;">ลบ</button></div>`;
-        });
-        document.getElementById('dashboard').innerHTML = `รวมจ่าย: ${total.toLocaleString()} บาท`;
-    }
+        let alerts = document.getElementById('alerts');
+        alerts.innerHTML = '';
+        let lastOilChange = data.find(i => i.category === 'เปลี่ยนน้ำมันเครื่อง');
+        
+        // ตรวจสอบแจ้งเตือนน้ำมันเครื่อง (สมมติเปลี่ยนทุก 10,000 กม.)
+        let latestFuel = data.find(i => i.type === 'FUEL');
+        if (latestFuel && lastOilChange && (latestFuel.mileage - 10000 > 0)) {
+            alerts.innerHTML = `<div class="alert-box">⚠️ แจ้งเตือน: ถึงกำหนดถ่ายน้ำมันเครื่องของ ${latestFuel.car} แล้ว!</div>`;
+        }
 
-    function backup() { alert("คัดลอกข้อมูลนี้เก็บไว้ใน Note นะครับ:\n" + JSON.stringify(logs)); }
+        let list = document.getElementById('logList');
+        list.innerHTML = '';
+        data.forEach((item, i) => {
+            list.innerHTML += `<div class="log-item"><b>${item.car}</b> | ${item.type === 'FUEL' ? '⛽ เชื้อเพลิง' : '🔧 ' + item.category} <br> จ่าย: ${item.cost} บาท (${item.date})</div>`;
+        });
+        document.getElementById('dashboard').innerHTML = `รวมค่าใช้จ่ายทั้งหมด: <b>${data.reduce((s,i) => s + parseFloat(i.cost), 0).toLocaleString()} บาท</b>`;
+    }
     render();
 </script>
 </body>
